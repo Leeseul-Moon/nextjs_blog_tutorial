@@ -1,29 +1,31 @@
-# Next.js
+import Layout from "../../components/layout";
+import { getAllPostIds, getPostData } from "../../lib/posts";
+import Head from "next/head";
+import Date from "../../components/date";
+import utilStyles from "../../styles/utils.module.css";
 
-[Learn Next.js](https://nextjs.org/learn) 을 보며 만든 blog 입니다.
+export default function Post({ postData }) {
+  return (
+    <Layout>
+      <Head>
+        <title>{postData.title}</title>
+      </Head>
+      <article>
+        <h1 className={utilStyles.headingXl}>{postData.title}</h1>
+        <div className={utilStyles.lightText}>
+          <Date dateString={postData.date} />
+        </div>
+        <div dangerouslySetInnerHTML={{ __html: postData.contentHtml }} />
+      </article>
+    </Layout>
+  );
+}
 
-### 배운 점
-
-- global css 적용법
-- \_app, layout component 의 역할 및 사용법
-- a tag VS Link
-
-```markdown
-<a> 를 사용하면, 화면이 새로고침 되며 이동. 때문에 link 사용.
-If you need to link to an external page outside the Next.js app,
-just use an a tag without Link.
-whenever Link components appear in the browser’s viewport,
-Next.js automatically prefetches the code for the linked page in the background.
-```
-
-- SSR vs SSG 그리고 Hydrate 개념 [BLOG](https://lazygay.tistory.com/60)
-- `getStaticProps`, `getStaticPaths`, `getServerSideProps` 차이점
-
-```javaScript
 export async function getStaticPaths() {
-    // 동적 라우팅을 사용할 때, 어떤 페이지를 미리 Static으로 빌드할 지 정하는 api
-    // 빌드시에 한 번 실행(프로덕션에선)
+  // 동적 라우팅을 사용할 때, 어떤 페이지를 미리 Static으로 빌드할 지 정하는 api
+  // 프로덕션에선 빌드시에 한 번 실행
   const paths = getAllPostIds();
+  console.log("paths :>> ", paths);
   return {
     paths,
     fallback: false,
@@ -44,19 +46,10 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const postData = await getPostData(params.id);
+  console.log("postData :>> ", postData);
   return {
     props: {
       postData,
     },
   };
 }
-
-//  You should use getServerSideProps only if you need to pre-render a page
- export async function getServerSideProps(context) { // 매 요청마다 실행
-   return {
-     props: {
-       // props for your component
-   },
-   };
- }
-```
